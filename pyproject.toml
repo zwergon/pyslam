@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyslam"
+dynamic = ["version"]
+description = "une version python de fslam"
+
+authors = [{ name = "Jean-François Lecomte", email = "zwergon@free.fr" }]
+
+license = { text = "Apache-2.0" }
+
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.setuptools_scm]
+version_file = "pyslam/_version.py"
+local_scheme = "no-local-version"
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
