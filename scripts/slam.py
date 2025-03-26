@@ -8,6 +8,7 @@ from pysheds.pview import Raster
 
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 from pyslam.cn import CN
+from pyslam.infiltration import InfitrationCompute, Infiltration
 
 if __name__ == "__main__":
 
@@ -54,6 +55,18 @@ if __name__ == "__main__":
 
     cn = CN(soil, lulc)
     plt.imshow(cn.grid)
+    plt.show()
+
+    rain = grid_from_asc(os.path.join(path, "rain_8.asc"), dtype=np.float32)
+    print(rain)
+
+    plt.imshow(rain.grid)
+    plt.show()
+
+    infiltration_compute = InfitrationCompute(cn)
+    infiltration = Infiltration(rain, infiltration_compute)
+
+    plt.imshow(infiltration.grid)
     plt.show()
 
     # hsg = soil.map('hsg', dtype=np.char)
