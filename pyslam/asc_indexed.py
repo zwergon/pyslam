@@ -1,18 +1,7 @@
 
 import numpy as np
 from pyslam.asc_grid import AscGrid
-
-
-class Indirection:
-
-    def __init__(self, keys_to_idx: dict, indirections: dict) -> None:
-        self.keys_to_idx = keys_to_idx
-        self.indirections = indirections
-
-    def out_value(self, key, in_value):
-        assert in_value in self.indirections, "this value is not defined in indirected map"
-        assert key in self.keys_to_idx, "this key is not defined in indirected map"
-        return self.indirections[in_value][self.keys_to_idx[key]]
+from pyslam.indirection import Indirection
 
 
 class AscIndexed(AscGrid):

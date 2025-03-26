@@ -37,10 +37,9 @@ if __name__ == "__main__":
             glissement_path, in_file), dtype=in_dtype)
 
         dem = dem[crop[1][0]:crop[1][1]:ratio, crop[0][0]:crop[0][1]:ratio]
-        no_data =
         asc_grid = AscGrid(dem, cellsize=40.*ratio, no_data=grid.nodata)
         print(asc_grid.header())
-        to_asc(asc_grid, os.path.join(path, out_file))
+        grid_to_asc(asc_grid, os.path.join(path, out_file))
 
     plt.imshow(dem)
     plt.show()

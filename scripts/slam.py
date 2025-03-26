@@ -7,6 +7,7 @@ from pysheds.grid import Grid
 from pysheds.pview import Raster
 
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
+from pyslam.cn import CN
 
 if __name__ == "__main__":
 
@@ -23,11 +24,11 @@ if __name__ == "__main__":
     # pit_filled_dem = grid.fill_pits(dem)
     # flooded_dem = grid.fill_depressions(pit_filled_dem)
     # inflated_dem = grid.resolve_flats(flooded_dem)
-    # dem = grid_from_asc(os.path.join(path, in_file), dtype=in_type)
-    # print(dem)
+    dem = grid_from_asc(os.path.join(path, in_file), dtype=in_type)
+    print(dem)
 
-    # plt.imshow(dem.grid)
-    # plt.show()
+    plt.imshow(dem.grid)
+    plt.show()
 
     in_file = "soil_8.asc"
     csv_file = "soil.csv"
@@ -41,3 +42,20 @@ if __name__ == "__main__":
     Ks = soil.map('Ks', dtype=np.float32)
     plt.imshow(Ks.grid)
     plt.show()
+
+    in_file = "lulc_8.asc"
+    csv_file = "htmu.csv"
+    in_type = np.int32
+
+    lulc = indexed_from_asc(
+        os.path.join(path, in_file),
+        os.path.join(path, csv_file),
+        dtype=in_type)
+
+    cn = CN(soil, lulc)
+    plt.imshow(cn.grid)
+    plt.show()
+
+    # hsg = soil.map('hsg', dtype=np.char)
+    # plt.imshow(hsg.grid)
+    # plt.show()
