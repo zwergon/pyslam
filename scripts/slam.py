@@ -9,6 +9,8 @@ from pysheds.pview import Raster
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 from pyslam.cn import CN
 from pyslam.infiltration import InfitrationCompute, Infiltration
+from pyslam.properties import SoilProperties
+
 
 if __name__ == "__main__":
 
@@ -42,6 +44,11 @@ if __name__ == "__main__":
 
     Ks = soil.map('Ks', dtype=np.float32)
     plt.imshow(Ks.grid)
+    plt.show()
+
+    soil_properties = SoilProperties(soil)
+    C = soil_properties.map('C')
+    plt.imshow(C.grid)
     plt.show()
 
     in_file = "lulc_8.asc"
