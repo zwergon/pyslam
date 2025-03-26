@@ -29,18 +29,20 @@ class Properties:
 
         sampler_type = self.sampler_types.get(key)
 
-        if sampler_type == DirectSampler:
-            param = np.float32(self.indirection.out_value(key, value))
-            return DirectSampler(param)
-        elif sampler_type == MinMaxSampler or sampler_type == MeanSampler:
-            min_param = np.float32(
+        params = {}
+        if sampler_type in [DirectSampler]:
+            params['value'] = np.float32(
+                self.indirection.out_value(key, value))
+        elif sampler_type in [MinMaxSampler, MeanSampler]:
+            params['min'] = np.float32(
                 self.indirection.out_value(f"{key}min", value))
-            max_param = np.float32(
+            params['max'] = np.float32(
                 self.indirection.out_value(f"{key}max", value))
-            return MinMaxSampler(min_param, max_param)
         else:
             raise ValueError(
                 f"Sampler type '{sampler_type}' is not supported.")
+
+        return sampler_type(**params)
 
     def map(self, key) -> AscGrid:
         assert key in self.keys, "this map properties is not set"
@@ -61,6 +63,8 @@ class Properties:
 
 
 class Sampler:
+    def __init__(self, **kwargs):
+        pass
 
     def value(self):
         pass
@@ -68,6 +72,7 @@ class Sampler:
 
 class DirectSampler(Sampler):
     def __init__(self, value) -> None:
+        super().__init__()
         self._value = value
 
     def value(self):
@@ -76,6 +81,7 @@ class DirectSampler(Sampler):
 
 class MinMaxSampler(Sampler):
     def __init__(self, min, max) -> None:
+        super().__init__()
         self.min = min
         self.max = max
 
@@ -85,6 +91,7 @@ class MinMaxSampler(Sampler):
 
 class MeanSampler(Sampler):
     def __init__(self, min, max) -> None:
+        super().__init__()
         self.mean = (min + max) / 2.
         self.stdmin = (max - min) / 4.
 

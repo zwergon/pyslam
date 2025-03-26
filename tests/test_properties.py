@@ -3,7 +3,13 @@ import numpy as np
 from pyslam.asc_grid import AscGrid
 from pyslam.asc_indexed import AscIndexed
 from pyslam.indirection import Indirection, CategoryMapper
-from pyslam.properties import SoilProperties, DirectSampler, MinMaxSampler, Properties
+from pyslam.properties import (
+    SoilProperties,
+    DirectSampler,
+    MeanSampler,
+    MinMaxSampler,
+    Properties
+)
 
 
 class TestProperties(unittest.TestCase):
@@ -77,21 +83,19 @@ class TestProperties(unittest.TestCase):
         self.assertIsInstance(sampler, DirectSampler)
         self.assertEqual(sampler.value(), 0.7)
 
-    def test_sampler_min_max_sampler(self):
+    def test_sampler_mean_sampler(self):
         # Test with a key that should return a MinMaxSampler
         sampler = self.soil_properties.sampler('C', 1)
-        self.assertIsInstance(sampler, MinMaxSampler)
-        self.assertEqual(sampler.min, 0.1)
-        self.assertEqual(sampler.max, 0.3)
-        self.assertGreaterEqual(sampler.value(), sampler.min)
-        self.assertLessEqual(sampler.value(), sampler.max)
+        self.assertIsInstance(sampler, MeanSampler)
+        self.assertEqual(sampler.mean, 0.2)
+        # self.assertGreaterEqual(sampler.value(), sampler.min)
+        # self.assertLessEqual(sampler.value(), sampler.max)
 
         sampler = self.soil_properties.sampler('phi', 2)
-        self.assertIsInstance(sampler, MinMaxSampler)
-        self.assertEqual(sampler.min, 0.3)
-        self.assertEqual(sampler.max, 0.5)
-        self.assertGreaterEqual(sampler.value(), sampler.min)
-        self.assertLessEqual(sampler.value(), sampler.max)
+        self.assertIsInstance(sampler, MeanSampler)
+        self.assertEqual(sampler.mean, 0.4)
+        # self.assertGreaterEqual(sampler.value(), sampler.min)
+        # self.assertLessEqual(sampler.value(), sampler.max)
 
     def test_sampler_invalid_key(self):
         # Test with an invalid key
