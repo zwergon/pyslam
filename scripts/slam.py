@@ -4,9 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-from pysheds.grid import Grid
-from pysheds.pview import Raster
-
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 from pyslam.cn import CN
 from pyslam.infiltration import InfitrationCompute, Infiltration
@@ -17,21 +14,14 @@ if __name__ == "__main__":
 
     path = os.path.join(os.path.dirname(
         __file__), "../data")
-    # grid: ArcGrid = from_tif(os.path.join(path, "dem.tif"))
 
     with open(os.path.join(os.path.dirname(__file__), 'files.yml')) as file:
         files = yaml.load(file, Loader=yaml.FullLoader)
         print(files)
 
-    in_file = files['dem']
+    in_file = files['dem']['map']
     in_type = np.float32
 
-    # grid: Grid = Grid.from_ascii(os.path.join(path, in_file))
-    # dem: Raster = grid.read_ascii(os.path.join(path, in_file), dtype=in_type)
-
-    # pit_filled_dem = grid.fill_pits(dem)
-    # flooded_dem = grid.fill_depressions(pit_filled_dem)
-    # inflated_dem = grid.resolve_flats(flooded_dem)
     dem = grid_from_asc(os.path.join(path, in_file), dtype=in_type)
     print(dem)
 
@@ -70,7 +60,7 @@ if __name__ == "__main__":
     plt.show()
 
     rain = grid_from_asc(os.path.join(
-        path, files['rain']['event']), dtype=np.float32)
+        path, files['rain']['map']), dtype=np.float32)
     print(rain)
 
     plt.imshow(rain.grid)

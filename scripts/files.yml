@@ -1,4 +1,6 @@
-dem: "dem_8.asc"
+dem:
+  map: "dem_8.asc"
+  acc: "dem_8_acc.asc"
 soil:
   map: "soil_8.asc"
   csv: "soil.csv"
@@ -6,5 +8,8 @@ lulc:
   map: "lulc_8.asc"
   csv: "htmu.csv"
 rain:
-  event: "rain_8.asc"
-  ante: "rain_ant_8.asc"
+  map: "rain_8.asc"
+  acc: "rain_8_acc.asc"
+rain_ante:
+  map: "rain_ant_8.asc"
+  acc: "rain_ant_8_acc.asc"
