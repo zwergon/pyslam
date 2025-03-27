@@ -1,4 +1,5 @@
 import os
+import yaml
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -18,7 +19,11 @@ if __name__ == "__main__":
         __file__), "../data")
     # grid: ArcGrid = from_tif(os.path.join(path, "dem.tif"))
 
-    in_file = "dem_8.asc"
+    with open(os.path.join(os.path.dirname(__file__), 'files.yml')) as file:
+        files = yaml.load(file, Loader=yaml.FullLoader)
+        print(files)
+
+    in_file = files['dem']
     in_type = np.float32
 
     # grid: Grid = Grid.from_ascii(os.path.join(path, in_file))
@@ -33,8 +38,8 @@ if __name__ == "__main__":
     plt.imshow(dem.grid)
     plt.show()
 
-    in_file = "soil_8.asc"
-    csv_file = "soil.csv"
+    in_file = files['soil']['map']
+    csv_file = files['soil']['csv']
     in_type = np.int32
 
     soil = indexed_from_asc(
@@ -51,8 +56,8 @@ if __name__ == "__main__":
     plt.imshow(C.grid)
     plt.show()
 
-    in_file = "lulc_8.asc"
-    csv_file = "htmu.csv"
+    in_file = files['lulc']['map']
+    csv_file = files['lulc']['csv']
     in_type = np.int32
 
     lulc = indexed_from_asc(
@@ -64,7 +69,8 @@ if __name__ == "__main__":
     plt.imshow(cn.grid)
     plt.show()
 
-    rain = grid_from_asc(os.path.join(path, "rain_8.asc"), dtype=np.float32)
+    rain = grid_from_asc(os.path.join(
+        path, files['rain']['event']), dtype=np.float32)
     print(rain)
 
     plt.imshow(rain.grid)

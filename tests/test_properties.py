@@ -10,6 +10,7 @@ from pyslam.properties import (
     MinMaxSampler,
     Properties
 )
+from pyslam.samplers import Sampler
 
 
 class TestProperties(unittest.TestCase):
@@ -45,11 +46,11 @@ class TestProperties(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(self.soil_properties.indexed, self.asc_indexed)
-        self.assertEqual(self.soil_properties.keys,
-                         SoilProperties.sampler_types.keys())
-        self.assertEqual(self.soil_properties.indirection, self.indirection)
-        self.assertEqual(self.soil_properties.sampler_types,
-                         SoilProperties.sampler_types)
+        self.assertEqual(list(self.soil_properties.samplers.keys()),
+                         list(SoilProperties.sampler_types.keys()))
+        # self.assertEqual(self.soil_properties.indirection, self.indirection) # not exposed anymore
+        # self.assertEqual(self.soil_properties.sampler_types, # not exposed anymore
+        #                  SoilProperties.sampler_types)
 
     def test_map_valid_key(self):
         # Test with a valid key
@@ -67,53 +68,45 @@ class TestProperties(unittest.TestCase):
 
     def test_sampler_direct_sampler(self):
         # Test with a key that should return a DirectSampler
-        sampler = self.soil_properties.sampler('Ks', 1)
+        sampler: DirectSampler = self.soil_properties.samplers['Ks']
         self.assertIsInstance(sampler, DirectSampler)
-        self.assertEqual(sampler.value(), 0.1)
+        self.assertEqual(sampler.sample(1), 0.1)  # Ks
 
-        sampler = self.soil_properties.sampler('h', 2)
+        sampler: DirectSampler = self.soil_properties.samplers['h']
         self.assertIsInstance(sampler, DirectSampler)
-        self.assertEqual(sampler.value(), 200)
+        self.assertEqual(sampler.sample(2), 200)  # h
 
-        sampler = self.soil_properties.sampler('dens', 3)
+        sampler: DirectSampler = self.soil_properties.samplers['dens']
         self.assertIsInstance(sampler, DirectSampler)
-        self.assertEqual(sampler.value(), 1.7)
+        self.assertEqual(sampler.sample(3), 1.7)  # dens
 
-        sampler = self.soil_properties.sampler('porosity', 4)
+        sampler: DirectSampler = self.soil_properties.samplers['porosity']
         self.assertIsInstance(sampler, DirectSampler)
-        self.assertEqual(sampler.value(), 0.7)
+        self.assertEqual(sampler.sample(4), 0.7)  # porosity
 
     def test_sampler_mean_sampler(self):
-        # Test with a key that should return a MinMaxSampler
-        sampler = self.soil_properties.sampler('C', 1)
+        # Test with a key that should return a MeanSampler
+        sampler: MeanSampler = self.soil_properties.samplers['C']
         self.assertIsInstance(sampler, MeanSampler)
-        self.assertEqual(sampler.mean, 0.2)
-        # self.assertGreaterEqual(sampler.value(), sampler.min)
-        # self.assertLessEqual(sampler.value(), sampler.max)
+        np.random.seed(1)
+        self.assertAlmostEqual(sampler.sample(1), 0.2812, places=4)
 
-        sampler = self.soil_properties.sampler('phi', 2)
+        sampler: MeanSampler = self.soil_properties.samplers['phi']
         self.assertIsInstance(sampler, MeanSampler)
-        self.assertEqual(sampler.mean, 0.4)
-        # self.assertGreaterEqual(sampler.value(), sampler.min)
-        # self.assertLessEqual(sampler.value(), sampler.max)
+        self.assertAlmostEqual((sampler.sample(2)), 0.3694, places=4)
 
     def test_sampler_invalid_key(self):
         # Test with an invalid key
-        with self.assertRaises(AssertionError):
-            self.soil_properties.sampler('invalid_key', 1)
-
-    def test_direct_sampler_value(self):
-        sampler = DirectSampler(10)
-        self.assertEqual(sampler.value(), 10)
-
-    def test_min_max_sampler_value(self):
-        sampler = MinMaxSampler(1, 10)
-        self.assertGreaterEqual(sampler.value(), 1)
-        self.assertLessEqual(sampler.value(), 10)
+        with self.assertRaises(KeyError):
+            self.soil_properties.samplers['invalid_key']
 
     def test_sampler_unsupported_type(self):
-        class DummySampler:
-            pass
+        class DummySampler(Sampler):
+            def __init__(self, key, indexed):
+                super().__init__(key, indexed)
+
+            def sample(self, value):
+                return 0.0
 
         class DummyProperties(Properties):
             sampler_types = {'dummy': DummySampler}
@@ -122,8 +115,7 @@ class TestProperties(unittest.TestCase):
                 super().__init__(self.sampler_types, indexed)
 
         dummy_properties = DummyProperties(self.asc_indexed)
-        with self.assertRaises(ValueError):
-            dummy_properties.sampler('dummy', 1)
+        self.assertIsInstance(dummy_properties.samplers['dummy'], DummySampler)
 
 
 if __name__ == '__main__':

@@ -1,53 +1,31 @@
 import numpy as np
 from pyslam.asc_grid import AscGrid
 from pyslam.asc_indexed import AscIndexed
+from pyslam.samplers import (
+    Sampler,
+    DirectSampler,
+    MinMaxSampler,
+    MeanSampler
+)
 
 
 class Properties:
 
     def __init__(self, sampler_types: dict, indexed: AscIndexed) -> None:
         self.indexed: AscIndexed = indexed
-        self.keys = sampler_types.keys()
-        self.sampler_types = sampler_types
+        self.samplers = {
+            key: sampler_type(key, self.indexed)
+            for key, sampler_type in sampler_types.items()
+        }
 
-    @property
-    def indirection(self):
-        return self.indexed.indirection
-
-    def sampler(self, key, value):
-        """
-        Generic sampler method.
-
-        Args:
-            key: The key to sample.
-            value: The index value from the AscIndexed grid.
-
-        Returns:
-            A Sampler instance.
-        """
-        assert key in self.keys, f"Key '{key}' is not defined for this property set."
-
-        sampler_type = self.sampler_types.get(key)
-
-        params = {}
-        if sampler_type in [DirectSampler]:
-            params['value'] = np.float32(
-                self.indirection.out_value(key, value))
-        elif sampler_type in [MinMaxSampler, MeanSampler]:
-            params['min'] = np.float32(
-                self.indirection.out_value(f"{key}min", value))
-            params['max'] = np.float32(
-                self.indirection.out_value(f"{key}max", value))
-        else:
-            raise ValueError(
-                f"Sampler type '{sampler_type}' is not supported.")
-
-        return sampler_type(**params)
+    def add_sampler(self, key, sampler: Sampler):
+        self.samplers[key] = sampler
 
     def map(self, key) -> AscGrid:
-        assert key in self.keys, "this map properties is not set"
+        assert key in self.samplers.keys(), "this map properties is not set"
 
         indexed_grid = self.indexed.grid
+        sampler: Sampler = self.samplers[key]
 
         array = np.zeros(shape=(indexed_grid.shape), dtype=np.float32)
 
@@ -56,47 +34,9 @@ class Properties:
                 grid_ij = indexed_grid[j, i]
                 if grid_ij == self.indexed.no_data:
                     continue
-                sampler = self.sampler(key, grid_ij)
-                array[j, i] = sampler.value()
+                array[j, i] = sampler.sample(grid_ij)
 
         return AscGrid(array, self.indexed.corners, self.indexed.cellsize, 0.0)
-
-
-class Sampler:
-    def __init__(self, **kwargs):
-        pass
-
-    def value(self):
-        pass
-
-
-class DirectSampler(Sampler):
-    def __init__(self, value) -> None:
-        super().__init__()
-        self._value = value
-
-    def value(self):
-        return self._value
-
-
-class MinMaxSampler(Sampler):
-    def __init__(self, min, max) -> None:
-        super().__init__()
-        self.min = min
-        self.max = max
-
-    def value(self):
-        return np.random.uniform(self.min, self.max)
-
-
-class MeanSampler(Sampler):
-    def __init__(self, min, max) -> None:
-        super().__init__()
-        self.mean = (min + max) / 2.
-        self.stdmin = (max - min) / 4.
-
-    def value(self):
-        return np.random.normal(self.mean, self.stdmin)
 
 
 class SoilProperties(Properties):

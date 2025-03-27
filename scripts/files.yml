@@ -1,0 +1,10 @@
+dem: "dem_8.asc"
+soil:
+  map: "soil_8.asc"
+  csv: "soil.csv"
+lulc:
+  map: "lulc_8.asc"
+  csv: "htmu.csv"
+rain:
+  event: "rain_8.asc"
+  ante: "rain_ant_8.asc"
