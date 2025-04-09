@@ -1,15 +1,23 @@
 dem:
   map: "dem_8.asc"
   acc: "dem_8_acc.asc"
+  acc_aire: "dem_8_acc_aire.asc"
+  slope_angles: "dem_8_slope_angles.asc"
+  inflated: "dem_8_inflated.asc"
 soil:
   map: "soil_8.asc"
   csv: "soil.csv"
+  acc_aire: "soil_8_acc_aire.asc"
 lulc:
   map: "lulc_8.asc"
   csv: "htmu.csv"
+  acc_aire: "lulc_8_acc_aire.asc"
 rain:
   map: "rain_8.asc"
   acc: "rain_8_acc.asc"
-rain_ante:
+  acc_aire: "rain_8_acc_aire.asc"
+rain_ant:
   map: "rain_ant_8.asc"
   acc: "rain_ant_8_acc.asc"
+  acc_aire: "rain_ant_8_acc_aire.asc"
+  acc_weight: "rain_ant_8_acc_weight.asc"

@@ -5,7 +5,8 @@ from pyslam.samplers import (
     Sampler,
     DirectSampler,
     MinMaxSampler,
-    MeanSampler
+    MeanSampler,
+    TanMeanSampler
 )
 
 
@@ -21,7 +22,7 @@ class Properties:
     def add_sampler(self, key, sampler: Sampler):
         self.samplers[key] = sampler
 
-    def map(self, key) -> AscGrid:
+    def map(self, key, std=False) -> AscGrid:
         assert key in self.samplers.keys(), "this map properties is not set"
 
         indexed_grid = self.indexed.grid
@@ -34,7 +35,10 @@ class Properties:
                 grid_ij = indexed_grid[j, i]
                 if grid_ij == self.indexed.no_data:
                     continue
-                array[j, i] = sampler.sample(grid_ij)
+                if std == True:
+                    array[j, i] = sampler.sample(grid_ij, std=True) #récupère l'écart type is demandé
+                else:
+                    array[j, i] = sampler.sample(grid_ij)
 
         return AscGrid(array, self.indexed.corners, self.indexed.cellsize, 0.0)
 
@@ -47,7 +51,8 @@ class SoilProperties(Properties):
         'phi': MeanSampler,
         'h': DirectSampler,
         'dens': DirectSampler,
-        'porosity': DirectSampler
+        'porosity': DirectSampler,
+        'tan_phi': TanMeanSampler
     }
 
     def __init__(self, soil: AscIndexed) -> None:
@@ -57,7 +62,7 @@ class SoilProperties(Properties):
 class LuLcProperties(Properties):
 
     sampler_types = {
-        'Cr': MinMaxSampler
+        'Cr': MeanSampler
     }
 
     def __init__(self, lulc: AscIndexed) -> None:
