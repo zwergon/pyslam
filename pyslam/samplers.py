@@ -44,7 +44,7 @@ class MeanSampler(Sampler):
         stdmin = (max - min) / 4.
         if std == True: #permet de ne récupérer que l'écart type, afin de pouvoir l'utiliser dans la probabilty of failure
             return stdmin
-        return np.random.normal(mean, stdmin)
+        return mean
     
 class TanMeanSampler(Sampler): #sampler pour la tangente directement, permet d'échantilloner directement dessus puisque la moyenne des tangentes n'est pas égale à la tangente de la moyenne
 
@@ -59,4 +59,4 @@ class TanMeanSampler(Sampler): #sampler pour la tangente directement, permet d'�
         tan_stdmin = (tan_max - tan_min) / 4.
         if std == True:
             return tan_stdmin
-        return np.random.normal(tan_mean, tan_stdmin)
+        return tan_mean
