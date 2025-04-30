@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
 
     ratio = 8
-    crop = ((3000, 4800), (3200, 4200))
+    crop = ((300, 480), (320, 420))
 
     files = (
         ("dem", np.float32),
