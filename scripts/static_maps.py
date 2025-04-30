@@ -6,19 +6,18 @@ from pysheds.pview import Raster
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 
 
-def static_maps():
+def static_maps(remplir_bords=True):
     path = os.path.join(os.path.dirname(
         __file__), "../data")
 
     with open(os.path.join(os.path.dirname(__file__), 'files.yml')) as file:
         files = yaml.load(file, Loader=yaml.FullLoader)
-        print(files)
 
     in_file = files['dem']['map']
     in_type = np.float32
 
-    dem = grid_from_asc(os.path.join(path, in_file)) #on récupère la taille des cellules du dem pour multiplier l'accumulation afin d'avoir une aire
-    cellsize=dem.cellsize
+    dem = grid_from_asc(os.path.join(path, in_file)) 
+    cellsize=dem.cellsize #on récupère la taille des cellules du dem pour multiplier l'accumulation afin d'avoir une aire
 
     grid: Grid = Grid.from_ascii(os.path.join(path, in_file))
     dem: Raster = grid.read_ascii(os.path.join(path, in_file), dtype=in_type)
@@ -32,14 +31,15 @@ def static_maps():
 
     slopes = grid.cell_slopes(fdir=fdir, dem=inflated_dem)
     testslopes = slopes.copy()
-    testslopes[0,1:-1] = testslopes[1, 1:-1] #l'algorithme de calcul de pente ne calcule pas les bords et les laisse à 0 donc je préfère les remplir par les valeurs les plus proches pour ne pas avoir d'enveloppe nulle.
-    testslopes[-1,1:-1] = testslopes[-2, 1:-1]
-    testslopes[1:-1,0] = testslopes[1:-1,1]
-    testslopes[1:-1,-1] = testslopes[1:-1,-2]
-    testslopes[0,0] = testslopes[1,1]
-    testslopes[0,-1] = testslopes[1,-1]
-    testslopes[-1,0] = testslopes[-1,1]
-    testslopes[-1,-1] = testslopes[-1,-2]
+    if remplir_bords:
+        testslopes[0,1:-1] = testslopes[1, 1:-1] #l'algorithme de calcul de pente ne calcule pas les bords et les laisse à 0 donc je préfère les remplir par les valeurs les plus proches pour ne pas avoir d'enveloppe nulle.
+        testslopes[-1,1:-1] = testslopes[-2, 1:-1]
+        testslopes[1:-1,0] = testslopes[1:-1,1]
+        testslopes[1:-1,-1] = testslopes[1:-1,-2]
+        testslopes[0,0] = testslopes[1,1]
+        testslopes[0,-1] = testslopes[1,-1]
+        testslopes[-1,0] = testslopes[-1,1]
+        testslopes[-1,-1] = testslopes[-1,-2]
     slope_angles = np.arctan(testslopes)
     grid.to_ascii(slope_angles, os.path.join(path, files['dem']['slope_angles']))
     
@@ -64,7 +64,6 @@ def static_maps():
     in_type = np.float32
 
     in_file = files['rain_ant']['map']
-    basename = os.path.splitext(os.path.basename(in_file))[0]
     rain_ant: Raster = grid.read_ascii(os.path.join(path, in_file), dtype=in_type)
 
     rain_ant_acc = grid.accumulation(fdir, weights=rain_ant)*cellsize**2/acc_aire

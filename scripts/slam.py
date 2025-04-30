@@ -2,13 +2,14 @@ import os
 import yaml
 import numpy as np
 import rasterio
+from scipy.stats import norm
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 from pyslam.cn import CN
 from pyslam.infiltration import InfitrationCompute, Infiltration
 from pyslam.properties import SoilProperties, LuLcProperties
 from pyslam.traitement import ajout_cercle, moyenne_mobile_2D
 
-def slam():
+def slam(ligne=0, colonne=0, r=0, coef=1, cst=False, p=1, fonction=False):
     path_entree = os.path.join(os.path.dirname(
         __file__), "../data")
     
@@ -72,7 +73,7 @@ def slam():
     Cr_std = lulc_properties.map('Cr', std=True).grid
     Cr_std *= 1000
 
-    C = Cs# + Cr
+    C = Cs/10# + Cr
 
     cn = CN(soil, lulc)
 
@@ -92,7 +93,7 @@ def slam():
     # z = np.full_like(aire, 1)
     # z[mask] = 0.1*np.log(aire[mask]/(tan_slope_angles[mask]*cellsize)) #on divise par la cellsize pour normaliser et faire que le résultat ne dépende pas de la taille de nos grid
 
-    qecercle = ajout_cercle(qe, 250, 400, 50, 0.005, cst=True)
+    qecercle = ajout_cercle(qe, ligne, colonne, r, coef, cst, p, fonction)
 
     wetness = np.full_like(aire, 0.0)
     wetness[mask] = qecercle[mask]/(n[mask]*z[mask]) + qa[mask]/(z[mask]*10**(-7)*3)
@@ -101,7 +102,7 @@ def slam():
     FS_C1 = np.full_like(C, 0.0)
     FS_C2 = np.full_like(C, 0.0)
 
-    FS_C1[mask] = C[mask]/(10*g*rhos[mask]*z[mask]*cos_slope_angles[mask]*sin_slope_angles[mask]) + tan_phi[mask]/tan_slope_angles[mask]
+    FS_C1[mask] = C[mask]/(g*rhos[mask]*z[mask]*cos_slope_angles[mask]*sin_slope_angles[mask]) + tan_phi[mask]/tan_slope_angles[mask]
     FS_C2[mask] = wetness_min[mask]*(rhow/rhos[mask])*(tan_phi[mask]/tan_slope_angles[mask])
 
     FS = FS_C1 - 2*FS_C2 #changement dans le but d'accentuer l'effet de la pluie
@@ -116,31 +117,24 @@ def slam():
 
     FS_mu = np.full_like(A, 0.0)
     FS_mu[mask] = tan_phi[mask]/D[mask] + C[mask]/A[mask]
-    FS_mu_petit = np.where(FS_mu < 10, FS_mu, 10)
-    FS_mu_petit2 = np.where(FS_mu_petit > -10, FS_mu_petit, -10)
     
     with rasterio.open(os.path.join(path_entree, 'dem_8.asc')) as src:
-        ras_data = src.read()
         ras_meta = src.profile
     with rasterio.open(os.path.join(path_sortie, 'FS.asc'), 'w', **ras_meta) as dst:
         dst.write(FS_petit2, 1)
-    with rasterio.open(os.path.join(path_sortie, 'FS_avec_cercle.asc'), 'w', **ras_meta) as dst:
+    with rasterio.open(os.path.join(path_sortie, 'FS_convolve.asc'), 'w', **ras_meta) as dst:
         dst.write(FStest, 1)
 
-    # std = np.full_like(A, 0.0)
-    # std[mask] = np.sqrt(tan_phi_std[mask]**2/(D[mask]**2) + (Cr_std[mask]**2 + Cs_std[mask]**2)/(A[mask]**2))
-    # # plt.imshow(std)
-    # # plt.show()
-    # Pof_val = np.full_like(FS_mu, 0.0)
-    # Pof_val[mask] = (1-FS_mu[mask])/std[mask]
-    # # plt.imshow(Pof_val)
-    # # plt.show()
-    # Pof = np.full_like(Pof_val, 0.0)
-    # Pof[mask] = norm.cdf(Pof_val[mask])
-    # # plt.imshow(Pof)
-    # # plt.show()
-    # with rasterio.open(os.path.join(path_sortie, 'PoF.asc'), 'w', **ras_meta) as dst:
-    #     dst.write(Pof, 1)
+    std = np.full_like(A, 0.0)
+    std[mask] = np.sqrt(tan_phi_std[mask]**2/(D[mask]**2) + (Cr_std[mask]**2 + Cs_std[mask]**2)/(A[mask]**2))
+    Pof_val = np.full_like(FS_mu, 0.0)
+    Pof_val[mask] = (1-FS_mu[mask])/std[mask]
+
+    Pof = np.full_like(Pof_val, 0.0)
+    Pof[mask] = norm.cdf(Pof_val[mask])
+
+    with rasterio.open(os.path.join(path_sortie, 'PoF.asc'), 'w', **ras_meta) as dst:
+        dst.write(Pof, 1)
 
 
 if __name__ == "__main__":

@@ -38,7 +38,6 @@ def indexed_from_asc(asc_name, csv_name, dtype=np.int32) -> AscIndexed:
     with open(csv_name, 'r', encoding='utf-8-sig') as file:
         keys = file.readline().strip().split(";")
         mapper = CategoryMapper({k: i for i, k in enumerate(keys)})
-        print(mapper)
         file.readline()  # unites
         indirections = {}
         for line in file:

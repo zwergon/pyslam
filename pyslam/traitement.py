@@ -1,7 +1,9 @@
 import numpy as np
 from scipy import signal
 
-def ajout_cercle(arr, ligne, colonne, r, coef=1, cst=False, p=1, fonction = False): #ajoute dans un cercle centré en (colonne, ligne) de rayon r des valeurs décroissantes avec la distance en centre du cercle à un array
+def ajout_cercle(arr, ligne=0, colonne=0, r=0, coef=1, cst=False, p=1, fonction=False): #ajoute dans un cercle centré en (colonne, ligne) de rayon r des valeurs décroissantes avec la distance en centre du cercle à un array
+        if r == 0:
+             return arr
         nb_ligne, nb_col = arr.shape
         x = np.arange(0,nb_col)
         y = np.arange(0, nb_ligne)
