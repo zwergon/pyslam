@@ -1,7 +1,6 @@
 import os
 import yaml
 import numpy as np
-import matplotlib.pyplot as plt
 import rasterio
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 from pyslam.cn import CN
@@ -9,10 +8,12 @@ from pyslam.infiltration import InfitrationCompute, Infiltration
 from pyslam.properties import SoilProperties, LuLcProperties
 from pyslam.traitement import ajout_cercle, moyenne_mobile_2D
 
-if __name__ == "__main__":
-
-    path = os.path.join(os.path.dirname(
+def slam():
+    path_entree = os.path.join(os.path.dirname(
         __file__), "../data")
+    
+    path_sortie = os.path.join(os.path.dirname(
+        __file__), "../output")
 
     with open(os.path.join(os.path.dirname(__file__), 'files.yml')) as file:
         files = yaml.load(file, Loader=yaml.FullLoader)
@@ -20,14 +21,14 @@ if __name__ == "__main__":
     in_file = files['dem']['acc_aire']
     in_type = np.float32
 
-    aire = grid_from_asc(os.path.join(path, in_file), dtype=in_type).grid
+    aire = grid_from_asc(os.path.join(path_entree, in_file), dtype=in_type).grid
 
-    cellsize = grid_from_asc(os.path.join(path, in_file), dtype=in_type).cellsize
+    cellsize = grid_from_asc(os.path.join(path_entree, in_file), dtype=in_type).cellsize
 
     g = 9.81
 
     in_file = files['dem']['slope_angles']
-    slope_angles = grid_from_asc(os.path.join(path, in_file), dtype=in_type).grid
+    slope_angles = grid_from_asc(os.path.join(path_entree, in_file), dtype=in_type).grid
     tan_slope_angles = np.tan(slope_angles)
     sin_slope_angles = np.sin(slope_angles)
     cos_slope_angles = np.cos(slope_angles)
@@ -37,8 +38,8 @@ if __name__ == "__main__":
     in_type = np.int32
 
     soil = indexed_from_asc(
-        os.path.join(path, in_file),
-        os.path.join(path, csv_file),
+        os.path.join(path_entree, in_file),
+        os.path.join(path_entree, csv_file),
         dtype=in_type)
 
     Ks = soil.map('Ks', dtype=np.float32).grid
@@ -61,8 +62,8 @@ if __name__ == "__main__":
     in_type = np.int32
 
     lulc = indexed_from_asc(
-        os.path.join(path, in_file),
-        os.path.join(path, csv_file),
+        os.path.join(path_entree, in_file),
+        os.path.join(path_entree, csv_file),
         dtype=in_type)
     
     lulc_properties = LuLcProperties(lulc)
@@ -76,14 +77,14 @@ if __name__ == "__main__":
     cn = CN(soil, lulc)
 
     rain = grid_from_asc(os.path.join(
-        path, files['rain']['map']), dtype=np.float32)
+        path_entree, files['rain']['map']), dtype=np.float32)
 
     infiltration_compute = InfitrationCompute(cn)
     qe = Infiltration(rain, infiltration_compute).grid
     qe /= 1000 #on passe de mm à mètres pour être en unités SI
 
     rain_ant = grid_from_asc(os.path.join(
-        path, files['rain_ant']['acc_weight']), dtype=np.float32).grid
+        path_entree, files['rain_ant']['acc_weight']), dtype=np.float32).grid
     qa = rain_ant/(1000*24*3600) #on passe de mm/j en m/s pour être en unités SI
 
     mask = np.where((slope_angles!=0) & (C!=0) & (rhos!=0) & (tan_phi!=0) & (aire!=0) & (Ks!=0) & (n!=0))
@@ -118,12 +119,12 @@ if __name__ == "__main__":
     FS_mu_petit = np.where(FS_mu < 10, FS_mu, 10)
     FS_mu_petit2 = np.where(FS_mu_petit > -10, FS_mu_petit, -10)
     
-    with rasterio.open(os.path.join(path, 'dem_8.asc')) as src:
+    with rasterio.open(os.path.join(path_entree, 'dem_8.asc')) as src:
         ras_data = src.read()
         ras_meta = src.profile
-    with rasterio.open(os.path.join(path, 'FS.asc'), 'w', **ras_meta) as dst:
+    with rasterio.open(os.path.join(path_sortie, 'FS.asc'), 'w', **ras_meta) as dst:
         dst.write(FS_petit2, 1)
-    with rasterio.open(os.path.join(path, 'FS_avec_cercle.asc'), 'w', **ras_meta) as dst:
+    with rasterio.open(os.path.join(path_sortie, 'FS_avec_cercle.asc'), 'w', **ras_meta) as dst:
         dst.write(FStest, 1)
 
     # std = np.full_like(A, 0.0)
@@ -138,5 +139,9 @@ if __name__ == "__main__":
     # Pof[mask] = norm.cdf(Pof_val[mask])
     # # plt.imshow(Pof)
     # # plt.show()
-    # with rasterio.open(os.path.join(path, 'PoF.asc'), 'w', **ras_meta) as dst:
+    # with rasterio.open(os.path.join(path_sortie, 'PoF.asc'), 'w', **ras_meta) as dst:
     #     dst.write(Pof, 1)
+
+
+if __name__ == "__main__":
+    slam()

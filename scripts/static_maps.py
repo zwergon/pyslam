@@ -6,8 +6,7 @@ from pysheds.pview import Raster
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 
 
-if __name__ == "__main__":
-
+def static_maps():
     path = os.path.join(os.path.dirname(
         __file__), "../data")
 
@@ -75,3 +74,5 @@ if __name__ == "__main__":
     grid.to_ascii(rain_ant_acc_weight, os.path.join(path, files['rain_ant']['acc_weight']))
 
 
+if __name__ == "__main__":
+    static_maps()
