@@ -5,11 +5,25 @@ from pysheds.grid import Grid
 from pysheds.pview import Raster
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 
-def static_maps(remplir_bords=True):
-    path_entree = os.path.join(os.path.dirname(
-        __file__), "../data")
-    path_sortie = os.path.join(os.path.dirname(
-        __file__), "../output/static_maps")
+def static_maps(remplir_bords=True, in_dir=False, out_dir=False):
+    
+    if in_dir == False:
+        path_entree = os.path.join(os.path.dirname(
+            __file__), "../data")
+    else:
+        path_entree = os.path.join(os.path.dirname(
+            __file__), f"../data/{in_dir}")
+        
+    path_csv = os.path.join(os.path.dirname(
+            __file__), "../data")
+        
+    if out_dir == False:
+        path_sortie = os.path.join(os.path.dirname(
+            __file__), "../output/static_maps")
+    else:
+        path_sortie = os.path.join(os.path.dirname(
+            __file__), f"../output/static_maps/{out_dir}")
+        os.mkdir(path_sortie)
 
     with open(os.path.join(os.path.dirname(__file__), 'files.yml')) as file:
         files = yaml.load(file, Loader=yaml.FullLoader)
@@ -52,7 +66,7 @@ def static_maps(remplir_bords=True):
 
     soil = indexed_from_asc(
         os.path.join(path_entree, in_file),
-        os.path.join(path_entree, csv_file),
+        os.path.join(path_csv, csv_file),
         dtype=in_type)
 
     Ks = soil.map('Ks', dtype=np.float32).grid

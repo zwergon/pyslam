@@ -9,15 +9,31 @@ from pyslam.infiltration import InfitrationCompute, Infiltration
 from pyslam.properties import SoilProperties, LuLcProperties
 from pyslam.traitement import ajout_cercle, moyenne_mobile_2D
 
-def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False, coef_pluie=1):
-    path_entree = os.path.join(os.path.dirname(
-        __file__), "../data")
+def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False, coef_pluie=1, in_dir=False, static_maps_dir=False, out_dir=False):
+    if in_dir == False:
+        path_entree = os.path.join(os.path.dirname(
+            __file__), "../data")
+    else:
+        path_entree = os.path.join(os.path.dirname(
+            __file__), f"../data/{in_dir}")
+        
+    path_csv = os.path.join(os.path.dirname(
+            __file__), "../data")
     
-    path_static_maps = os.path.join(os.path.dirname(
-        __file__), "../output/static_maps")
+    if static_maps_dir == False:
+        path_static_maps = os.path.join(os.path.dirname(
+            __file__), "../output/static_maps")
+    else:
+        path_static_maps = os.path.join(os.path.dirname(
+            __file__), f"../output/static_maps/{static_maps_dir}")
     
-    path_sortie = os.path.join(os.path.dirname(
-        __file__), "../output/slam")
+    if out_dir == False:
+        path_sortie = os.path.join(os.path.dirname(
+            __file__), "../output/slam")
+    else:
+        path_sortie = os.path.join(os.path.dirname(
+            __file__), f"../output/slam/{out_dir}")
+        os.mkdir(path_sortie)
 
     with open(os.path.join(os.path.dirname(__file__), 'files.yml')) as file:
         files = yaml.load(file, Loader=yaml.FullLoader)
@@ -43,7 +59,7 @@ def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False,
 
     soil = indexed_from_asc(
         os.path.join(path_entree, in_file),
-        os.path.join(path_entree, csv_file),
+        os.path.join(path_csv, csv_file),
         dtype=in_type)
 
     Ks = soil.map('Ks', dtype=np.float32).grid
@@ -67,7 +83,7 @@ def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False,
 
     lulc = indexed_from_asc(
         os.path.join(path_entree, in_file),
-        os.path.join(path_entree, csv_file),
+        os.path.join(path_csv, csv_file),
         dtype=in_type)
     
     lulc_properties = LuLcProperties(lulc)
