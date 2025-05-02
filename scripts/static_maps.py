@@ -4,8 +4,6 @@ import yaml
 from pysheds.grid import Grid
 from pysheds.pview import Raster
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
-import matplotlib.pyplot as plt
-
 
 def static_maps(remplir_bords=True):
     path_entree = os.path.join(os.path.dirname(

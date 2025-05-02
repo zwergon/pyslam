@@ -1,45 +1,27 @@
 import os
 import numpy as np
-from pysheds.grid import Grid
-from pysheds.pview import Raster
+import rasterio
+from rasterio.transform import Affine
 
-from pyslam.asc_grid import AscGrid
-from pyslam.io.asc import grid_to_asc
-
-import matplotlib.pyplot as plt
-
-if __name__ == "__main__":
-
-    ratio = 8
-    crop = ((300, 480), (320, 420))
-
+def crop(xgauche=0, xdroite=1, yhaut=0, ybas=1, dem=np.zeros(1), lulc=np.zeros(1), rain_ant=np.zeros(1), rain=np.zeros(1), soil=np.zeros(1)):
     files = (
-        ("dem", np.float32),
-        ("lulc", np.int32),
-        ("rain_ant", np.float32),
-        ("rain_event", np.float32),
-        ("soil", np.int32)
+        (np.float32, dem, "dem"),
+        (np.int32, lulc, "lulc"),
+        (np.float32, rain_ant, "rain_ant"),
+        (np.float32, rain, "rain"),
+        (np.int32, soil, "soil")
     )
+    for typ, file, name in files:
+        in_dtype = typ
+        out_file = f"{name}_8.asc"
 
-    for f, t in files:
-        in_file = f"{f}.asc"
-        in_dtype = t
-        out_file = f"{f}_{ratio}.asc"
-
-        path = os.path.join(os.path.dirname(
+        path_sortie = os.path.join(os.path.dirname(
             __file__), "../data")
 
-        glissement_path = os.path.join(path, "glissements")
+        ras_meta = {'driver': 'AAIGrid', 'dtype': in_dtype, 'nodata': 0.0, 'width': xdroite - xgauche + 1, 'height': ybas - yhaut + 1, 'count': 1, 'crs': None,
+                    'transform': Affine(40.0, 0.0, 747667.4962 + xgauche*40.0 , 0.0, -40.0, 4882245.0088 - yhaut*40.0), 'blockxsize': xdroite - xgauche + 1, 'blockysize': 1, 'tiled': False}
+        with rasterio.open(os.path.join(path_sortie, out_file), 'w', **ras_meta) as dst:
+            dst.write(file[yhaut:ybas+1, xgauche:xdroite+1], 1)
 
-        grid: Grid = Grid.from_ascii(os.path.join(glissement_path, in_file))
-
-        dem: Raster = grid.read_ascii(os.path.join(
-            glissement_path, in_file), dtype=in_dtype)
-
-        dem = dem[crop[1][0]:crop[1][1]:ratio, crop[0][0]:crop[0][1]:ratio]
-        asc_grid = AscGrid(dem, cellsize=40.*ratio, no_data=grid.nodata)
-        print(asc_grid.header())
-        grid_to_asc(asc_grid, os.path.join(path, out_file))
-
-    plt.imshow(dem)
-    plt.show()
+if __name__ == "__main__":
+    crop(1000, 1599, 1600, 1999)
