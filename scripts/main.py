@@ -4,7 +4,7 @@ import crop
 import ouvre_fichiers
 
 if __name__ == "__main__":
-    """pour utiliser ce script il y a comme prérequis : mettre les rasters à crop dans un dossier dans pyslam/data/VOTRE_DOSSIER et mettre VOTRE_DOSSIER en argument de ouvre_fichiers.
+    """pour utiliser ce script il y a comme prérequis : mettre les rasters à crop dans un dossier dans pyslam/data/VOTRE_DOSSIER et mettre "VOTRE_DOSSIER" en argument de ouvre_fichiers.
     VOTRE_DOSSIER s'appelle to_crop par défaut mais vous pouvez l'appeller comme vous voulez. Si pas de crop voulu, mettre les raster dans pyslam/data et ne pas donner d'argument à ouvre_fichiers.
     Il faut aussi deux dossiers pyslam/output/static_maps et pyslam/output/slam créés au préalable et vides. Enfin, les deux CSV sont dans pyslam/data."""
     dem, lulc, rain_ant, rain, soil = ouvre_fichiers.ouvre_fichiers("to_crop") #on charge les fichiers une seule fois plutôt qu'à chaque appel de crop (a beaucoup d'impact si on fait plusieurs itérations)
