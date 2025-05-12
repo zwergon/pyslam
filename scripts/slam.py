@@ -132,7 +132,7 @@ def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False,
     A = np.full_like(C, 0.0)
     D = np.full_like(C, 0.0)
     A[mask] = z[mask]*cos_slope_angles[mask]*sin_slope_angles[mask]*rhos[mask]*g
-    D[mask] = tan_slope_angles[mask]/(1 - coef_pluie*(wetness_min[mask])*(rhow/rhos[mask])) #!!!!!le changement dans le but d'accentuer l'effet de la pluie se répercute ici dans le facteur 2!!!!!
+    D[mask] = tan_slope_angles[mask]/(1 - coef_pluie*(wetness_min[mask])*(rhow/rhos[mask])) #!!!!!le changement dans le but d'accentuer l'effet de la pluie se répercute ici dans le facteur!!!!!
 
     FS_mu = np.full_like(A, 0.0)
     FS_mu[mask] = tan_phi[mask]/D[mask] + C[mask]/A[mask]
