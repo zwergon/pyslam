@@ -9,6 +9,11 @@ class AscGrid:
         self.no_data = numpy.array([no_data], dtype=array.dtype)[0]
         self.grid = array
 
+    @classmethod
+    def from_grid(cls, grid: 'AscGrid'):
+        grid = cls(grid.array, grid.corners, grid.cellsize, grid.no_data)
+        return grid
+
     @property
     def my(self):
         return self.grid.shape[0]

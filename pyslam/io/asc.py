@@ -1,6 +1,5 @@
 
 import numpy as np
-import rasterio
 
 from pyslam.asc_grid import AscGrid
 from pyslam.asc_indexed import Indirection, AscIndexed
@@ -46,6 +45,19 @@ def indexed_from_asc(asc_name, csv_name, dtype=np.int32) -> AscIndexed:
     indirection = Indirection(mapper, indirections)
 
     grid = grid_from_asc(asc_name, dtype=dtype)
+    return AscIndexed(grid, indirection)
+
+def indexed_from_grid(grid: AscGrid, csv_path, dtype=np.int32) -> AscIndexed:
+    # read csv part
+    with open(csv_path, 'r', encoding='utf-8-sig') as file:
+        keys = file.readline().strip().split(";")
+        mapper = CategoryMapper({k: i for i, k in enumerate(keys)})
+        file.readline()  # unites
+        indirections = {}
+        for line in file:
+            values = line.strip().replace(',', '.').split(';')
+            indirections[int(values[0])] = values
+    indirection = Indirection(mapper, indirections)
     return AscIndexed(grid, indirection)
 
 

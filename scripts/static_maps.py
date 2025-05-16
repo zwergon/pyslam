@@ -58,7 +58,7 @@ def static_maps(remplir_bords=True, in_dir=False, out_dir=False):
     slope_angles = np.arctan(testslopes)
     grid.to_ascii(slope_angles, os.path.join(path_sortie, files['dem']['slope_angles']))
     
-    racine = np.sqrt(slopes)/np.sqrt(np.pi/2)
+    racine = np.sqrt(slope_angles)/np.sqrt(np.pi/2)
 
     in_file = files['soil']['map']
     csv_file = files['soil']['csv']
@@ -90,4 +90,4 @@ def static_maps(remplir_bords=True, in_dir=False, out_dir=False):
 
 
 if __name__ == "__main__":
-    static_maps()
+    static_maps(in_dir="1")

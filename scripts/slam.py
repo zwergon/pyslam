@@ -9,7 +9,8 @@ from pyslam.infiltration import InfitrationCompute, Infiltration
 from pyslam.properties import SoilProperties, LuLcProperties
 from pyslam.traitement import ajout_cercle, moyenne_mobile_2D
 
-def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False, coef_pluie=1, in_dir=False, static_maps_dir=False, out_dir=False):
+
+def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False, coef_pluie=1, coef_cohesion=1, in_dir=False, static_maps_dir=False, out_dir=False):
     if in_dir == False:
         path_entree = os.path.join(os.path.dirname(
             __file__), "../data")
@@ -72,7 +73,7 @@ def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False,
     Cs = soil_properties.map('C').grid
     Cs *= 1000 #on passe de kPa à Pa pour être en unités SI
     Cs_std = soil_properties.map('C', std=True).grid
-    Cs_std *= 1000
+    Cs_std *= 1000*coef_cohesion
 
     tan_phi = soil_properties.map('tan_phi').grid
     tan_phi_std = soil_properties.map('tan_phi', std=True).grid
@@ -90,9 +91,9 @@ def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False,
     Cr = lulc_properties.map('Cr').grid
     Cr *= 1000 #on passe de kPa à Pa pour être en unités SI
     Cr_std = lulc_properties.map('Cr', std=True).grid
-    Cr_std *= 1000
+    Cr_std *= 1000*coef_cohesion
 
-    C = Cs/10# + Cr
+    C = Cs*coef_cohesion# + Cr*coef_cohesion
 
     cn = CN(soil, lulc)
 
@@ -129,6 +130,17 @@ def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False,
     FS_petit2 = np.where(FS_petit > -10, FS_petit, -10)
     FStest = moyenne_mobile_2D(FS_petit2, 5)
 
+    # fs_petit = dem.from_grid(dem)
+
+    # cn.from_grid(dem)
+
+    # fs_petit.corners
+    # fs_petit.mx 
+    # fs_petit.grid = np.where(FS_petit > -10, FS_petit, -10)
+
+
+    # grid_to_asc(fs_petit, filename)
+
     A = np.full_like(C, 0.0)
     D = np.full_like(C, 0.0)
     A[mask] = z[mask]*cos_slope_angles[mask]*sin_slope_angles[mask]*rhos[mask]*g
@@ -145,7 +157,7 @@ def slam(ligne=0, colonne=0, r=0, coef_cercle=1, cst=False, p=1, fonction=False,
         dst.write(FStest, 1)
 
     std = np.full_like(A, 0.0)
-    std[mask] = np.sqrt(tan_phi_std[mask]**2/(D[mask]**2) + (Cr_std[mask]**2 + Cs_std[mask]**2)/(A[mask]**2))
+    std[mask] = np.sqrt(tan_phi_std[mask]**2/(D[mask]**2) + (Cs_std[mask]**2)/(A[mask]**2))
     Pof_val = np.full_like(FS_mu, 0.0)
     Pof_val[mask] = (1-FS_mu[mask])/std[mask]
 
