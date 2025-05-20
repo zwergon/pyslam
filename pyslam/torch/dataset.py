@@ -11,7 +11,7 @@ class DatasetFS(Dataset):
         self.traget_transform = target_transform
 
     def __len__(self):
-        return len(list(self.dir.glob('*'))) - 2 #! Le -2 vient du fait que dans mon dossier output il y a deux autres dossiers. S'ils ne sont pas présents, il faut enlever le -2.
+        return len(list(self.dir.glob('*')))
     
     def __getitem__(self, idx):
         input_path = self.dir / f"{idx}" / "model_input"
