@@ -23,20 +23,26 @@ if __name__ == "__main__":
     path_out = path/"output"
     path_out.mkdir(exist_ok=True)
 
+    skipped = 0 #on va skip les endroits où le dem est nul partout (ie l'eau ou les endroits hors des marches) et on en garde le compte pour le nom des dossiers créés.
     for i in range(13):
-        path_i = path_out/ f"{i}"
+        l = cropper.compute_crop(256*i, 256*(i+1) - 1, 256*i, 256*(i+1) - 1, dem, lulc, rain, rain_ant, soil)
+        dem_crop = l[0]
+
+        if not dem_crop.grid.any(): #si le dem est nul partout, alors on arrête l'itération ici et on garde le compte de nombre de skips.
+            skipped += 1
+            continue
+        
+        lulc_crop = indexed_from_grid(l[1], path/'data'/'htmu.csv')
+        rain_crop = l[2]
+        rain_ant_crop = l[3]
+        soil_crop = indexed_from_grid(l[4], path/'data'/'soil.csv')
+
+        path_i = path_out/ f"{i-skipped}" #le i-skipped sert à avoir une numérotation linéaire (ie sans trous là où on a skip).
         path_i.mkdir()
         path_i_input = path_i / "model_input"
         path_i_input.mkdir()
         path_i_output = path_i / "model_output"
         path_i_output.mkdir()
-
-        l = cropper.compute_crop(256*i, 256*(i+1) - 1, 256*i, 256*(i+1) - 1, dem, lulc, rain, rain_ant, soil)
-        dem_crop = l[0]
-        lulc_crop = indexed_from_grid(l[1], path/'data'/'htmu.csv')
-        rain_crop = l[2]
-        rain_ant_crop = l[3]
-        soil_crop = indexed_from_grid(l[4], path/'data'/'soil.csv')
 
         grid_to_asc(dem_crop, path_i_input / "dem_8.asc")
         grid_to_asc(rain_ant_crop, path_i_input / "rain_ant_8.asc")
