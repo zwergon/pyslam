@@ -10,16 +10,21 @@ from pyslam.asc_grid import AscGrid
 
 if __name__ == "__main__":
     path = Path(__file__).parent.parent
-    dem = grid_from_asc(path/"data"/"to_crop"/"dem_8.asc")
-    lulc = indexed_from_asc(path/'data'/'to_crop'/'lulc_8.asc', path/'data'/'htmu.csv')
-    rain = grid_from_asc(path/'data'/'to_crop'/'rain_8.asc')
-    rain_ant = grid_from_asc(path/'data'/'to_crop'/'rain_ant_8.asc')
-    soil = indexed_from_asc(path/'data'/'to_crop'/'soil_8.asc', path/'data'/'soil.csv')
+    if (path/"data").exists() == False:
+        print("A directory pyslam/data is needed. Modify the path if your files are found elsewhere.")
+    dem = grid_from_asc(path/"data"/"dem_8.asc")
+    lulc = indexed_from_asc(path/'data'/'lulc_8.asc', path/'data'/'htmu.csv')
+    rain = grid_from_asc(path/'data'/'rain_8.asc')
+    rain_ant = grid_from_asc(path/'data'/'rain_ant_8.asc')
+    soil = indexed_from_asc(path/'data'/'soil_8.asc', path/'data'/'soil.csv')
     
     cropper = Crop()
 
+    path_out = path/"output"
+    path_out.mkdir(exist_ok=True)
+
     for i in range(13):
-        path_i = path / "output" / f"{i}"
+        path_i = path_out/ f"{i}"
         path_i.mkdir()
         path_i_input = path_i / "model_input"
         path_i_input.mkdir()
