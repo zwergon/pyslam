@@ -6,6 +6,7 @@ from pyslam.slam_classe import Slam
 from pyslam.io.asc import grid_from_asc, indexed_from_asc, indexed_from_grid, grid_to_asc
 from pysheds.grid import Grid
 from pyslam.asc_grid import AscGrid
+from tqdm import tqdm
 
 
 if __name__ == "__main__":
@@ -24,8 +25,8 @@ if __name__ == "__main__":
     path_out.mkdir(exist_ok=True)
 
     skipped = 0 #on va skip les endroits où le dem est nul partout (ie l'eau ou les endroits hors des marches) et on en garde le compte pour le nom des dossiers créés.
-    for i in range(13):
-        l = cropper.compute_crop(256*i, 256*(i+1) - 1, 256*i, 256*(i+1) - 1, dem, lulc, rain, rain_ant, soil)
+    for i in tqdm(range(16)):
+        l = cropper.compute_crop(256*(i%15), 256*(i%15+1) - 1, 256*(i//15), 256*(i//15+1) - 1, dem, lulc, rain, rain_ant, soil)
         dem_crop = l[0]
 
         if not dem_crop.grid.any(): #si le dem est nul partout, alors on arrête l'itération ici et on garde le compte de nombre de skips.
