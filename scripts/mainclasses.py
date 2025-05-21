@@ -25,7 +25,7 @@ if __name__ == "__main__":
     path_out.mkdir(exist_ok=True)
 
     skipped = 0 #on va skip les endroits où le dem est nul partout (ie l'eau ou les endroits hors des marches) et on en garde le compte pour le nom des dossiers créés.
-    for i in tqdm(range(16)):
+    for i in tqdm(range(225)):
         l = cropper.compute_crop(256*(i%15), 256*(i%15+1) - 1, 256*(i//15), 256*(i//15+1) - 1, dem, lulc, rain, rain_ant, soil)
         dem_crop = l[0]
 
