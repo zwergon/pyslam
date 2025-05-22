@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from pyslam.torch.dataset import DatasetFS
+from pyslam.torch.dataset_fs import DatasetFS
 import matplotlib.pyplot as plt
 from pathlib import Path
 

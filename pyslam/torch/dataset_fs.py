@@ -26,7 +26,7 @@ class DatasetFS(Dataset):
         stacked = np.stack([dem, lulc, soil, rain_ant, rain], axis=-1)
         inputs = torch.from_numpy(stacked)
 
-        proba = grid_from_asc(output_path/"PoF.asc").grid
+        proba = grid_from_asc(output_path/"PoF_levels.asc").grid
         output = torch.from_numpy(proba)
 
         if self.transform:

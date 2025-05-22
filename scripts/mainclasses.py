@@ -1,8 +1,8 @@
 from pathlib import Path
 import numpy as np
-from pyslam.crop_classe import Crop
-from pyslam.static_maps_classe import Staticmaps
-from pyslam.slam_classe import Slam
+from pyslam.crop import Crop
+from pyslam.static_maps import StaticMaps
+from pyslam.slam import Slam
 from pyslam.io.asc import grid_from_asc, indexed_from_asc, indexed_from_grid, grid_to_asc
 from pysheds.grid import Grid
 from pyslam.asc_grid import AscGrid
@@ -19,24 +19,24 @@ if __name__ == "__main__":
     rain_ant = grid_from_asc(path/'data'/'rain_ant_8.asc')
     soil = indexed_from_asc(path/'data'/'soil_8.asc', path/'data'/'soil.csv')
     
-    cropper = Crop()
+    crop = Crop([dem, lulc, rain, rain_ant, soil])
 
     path_out = path/"output"
     path_out.mkdir(exist_ok=True)
 
     skipped = 0 #on va skip les endroits où le dem est nul partout (ie l'eau ou les endroits hors des marches) et on en garde le compte pour le nom des dossiers créés.
     for i in tqdm(range(225)):
-        l = cropper.compute_crop(256*(i%15), 256*(i%15+1) - 1, 256*(i//15), 256*(i//15+1) - 1, dem, lulc, rain, rain_ant, soil)
-        dem_crop = l[0]
+        crop.compute(256*(i%15), 256*(i%15+1) - 1, 256*(i//15), 256*(i//15+1) - 1)
+        dem_crop = crop.cropped[0]
 
         if not dem_crop.grid.any(): #si le dem est nul partout, alors on arrête l'itération ici et on garde le compte de nombre de skips.
             skipped += 1
             continue
         
-        lulc_crop = indexed_from_grid(l[1], path/'data'/'htmu.csv')
-        rain_crop = l[2]
-        rain_ant_crop = l[3]
-        soil_crop = indexed_from_grid(l[4], path/'data'/'soil.csv')
+        lulc_crop = indexed_from_grid(crop.cropped[1], path/'data'/'htmu.csv')
+        rain_crop = crop.cropped[2]
+        rain_ant_crop = crop.cropped[3]
+        soil_crop = indexed_from_grid(crop.cropped[4], path/'data'/'soil.csv')
 
         path_i = path_out/ f"{i-skipped}" #le i-skipped sert à avoir une numérotation linéaire (ie sans trous là où on a skip).
         path_i.mkdir()
@@ -55,14 +55,14 @@ if __name__ == "__main__":
         dem_asc = grid.read_ascii(path_i_input / 'dem_8.asc', dtype=np.float32)
         rain_ant_asc = grid.read_ascii(path_i_input / 'rain_ant_8.asc', dtype=np.float32)
 
-        static_maker = Staticmaps(dem_asc, soil_crop, grid, rain_ant_asc)
-        ascslopeangles, ascaire, ascrainacc = static_maker.compute_static_maps()
+        static_maker = StaticMaps(dem_asc, soil_crop, grid, rain_ant_asc)
+        asc_slope_angles, asc_aire, asc_rain_acc = static_maker.compute_static_maps()
 
-        slamer = Slam(ascaire, ascslopeangles, soil_crop, lulc_crop, rain_crop, ascrainacc)
+        slamer = Slam(asc_aire, asc_slope_angles, soil_crop, lulc_crop, rain_crop, asc_rain_acc)
         slamer.ajout_cercle_attr('qe', 100, 100, 0, 0.005, cst=True, p=1)
-        AscFS, AscFS_moy, AscPoF = slamer.compute_slam(coef_pluie=1, coef_cohesion=0.1)
+        asc_fs, asc_fs_moy, asc_pof = slamer.compute_slam(coef_pluie=1, coef_cohesion=0.1)
         
-        arr = AscPoF.grid.copy()
+        arr = asc_pof.grid.copy()
         arr = np.where((0.9<=arr)&(arr<=1), 0.9, arr)
         arr = np.where((0.8<=arr)&(arr<0.9), 0.8, arr)
         arr = np.where((0.7<=arr)&(arr<0.8), 0.7, arr)
@@ -73,10 +73,10 @@ if __name__ == "__main__":
         arr = np.where((0.2<=arr)&(arr<0.3), 0.2, arr)
         arr = np.where((0.1<=arr)&(arr<0.2), 0.1, arr)
         arr = np.where((0<=arr)&(arr<0.1), 0, arr)
-        AscPoF_levels = AscGrid(array=arr, corners=AscPoF.corners, cellsize=AscPoF.cellsize, no_data=AscPoF.no_data)
+        asc_pof_levels = AscGrid(array=arr, corners=asc_pof.corners, cellsize=asc_pof.cellsize, no_data=asc_pof.no_data)
 
-        grid_to_asc(AscFS, path_i_output / 'FS.asc')
-        grid_to_asc(AscFS_moy, path_i_output / 'FS_moy.asc')
-        grid_to_asc(AscPoF, path_i_output / 'PoF.asc')
-        grid_to_asc(AscPoF_levels, path_i_output / 'PoF_levels.asc')
+        grid_to_asc(asc_fs, path_i_output / 'FS.asc')
+        grid_to_asc(asc_fs_moy, path_i_output / 'FS_moy.asc')
+        grid_to_asc(asc_pof, path_i_output / 'PoF.asc')
+        grid_to_asc(asc_pof_levels, path_i_output / 'PoF_levels.asc')
 
