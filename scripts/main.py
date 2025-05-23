@@ -1,10 +1,8 @@
 from pathlib import Path
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 from pyslam.calc_ligne import CalcLigne
-import time
 
 if __name__ == "__main__":
-    tps = time.time()
     path = Path(__file__).parent.parent
     if (path/"data").exists() == False:
         print("A directory pyslam/data is needed. Modify the path if your files are found elsewhere.")
@@ -18,4 +16,3 @@ if __name__ == "__main__":
     numéro = [i for i in range(9)]
     for num in numéro:
         calc_ligne.calc_ligne(num)
-        print(time.time() - tps)
