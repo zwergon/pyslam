@@ -7,7 +7,7 @@ from pyslam.io.asc import indexed_from_grid, grid_to_asc
 from pysheds.grid import Grid
 from pyslam.asc_grid import AscGrid
 from pyslam.asc_indexed import AscIndexed
-
+from pyslam.traitement import ajout_cercle
 
 class CalcLigne:
     def __init__(self, path_feuille_exp: str|Path, dem: AscGrid, lulc: AscIndexed, rain: AscGrid, rain_ant: AscGrid, soil: AscIndexed):
@@ -61,13 +61,21 @@ class CalcLigne:
                 rain_ant_crop = crop.cropped[3]
                 soil_crop = indexed_from_grid(crop.cropped[4], path/'data'/'soil.csv')
 
+                if dico_params["grid"] == "rain":
+                    rain_crop.grid = ajout_cercle(rain_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"])
+                if dico_params["grid"] == "rain_ant":
+                    rain_ant_crop.grid = ajout_cercle(rain_ant_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"])
+                if dico_params["grid"] == "rain":
+                    dem_crop.grid = ajout_cercle(dem_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"])
+                #! On modifie ici les grilles de pluie ou le dem plutôt que plus bas pour que les modifs soient prises en compte quand on exporte les fichiers, voir commentaire plus bas.
+
                 path_i = path_out/ f"{dico_params["numéro"]}"
                 path_i.mkdir()
                 path_i_input = path_i / "model_input"
                 path_i_input.mkdir()
                 path_i_output = path_i / "model_output"
                 path_i_output.mkdir()
-
+                
                 grid_to_asc(dem_crop, path_i_input / "dem_8.asc")
                 grid_to_asc(rain_ant_crop, path_i_input / "rain_ant_8.asc")
                 grid_to_asc(rain_crop, path_i_input / "rain_8.asc")
@@ -82,7 +90,9 @@ class CalcLigne:
                 asc_slope_angles, asc_aire, asc_rain_acc = static_maker.compute_static_maps()
 
                 slamer = Slam(asc_aire, asc_slope_angles, soil_crop, lulc_crop, rain_crop, asc_rain_acc)
-                slamer.ajout_cercle_attr(dico_params["attr"], dico_params["ligne"], dico_params["colonne"], dico_params["r"], dico_params["coef"], cst=True, p=1)
+                #slamer.ajout_cercle_attr(dico_params["grid"], dico_params["ligne"], dico_params["colonne"], dico_params["r"], dico_params["coef"], cst=True, p=1)
+                #! Avec slamer.ajout_cercle, on n'exporte nulle part la carte avec le cercle ajouté et ce n'est donc pas pris en compte comme input pour le dataset torch.
+                #! On préfère donc modifier les cartes plus haut pour pouvoir garder en mémoire les changements et qu'ils puissent être pris en compte pas le modèle d'apprentissage.
                 asc_fs, asc_fs_moy, asc_pof = slamer.compute_slam(coef_pluie=1, coef_cohesion=0.1)
                 
                 arr = asc_pof.grid.copy()

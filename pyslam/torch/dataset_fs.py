@@ -14,8 +14,8 @@ class DatasetFS(Dataset):
         return len(list(self.dir.glob('*')))
     
     def __getitem__(self, idx):
-        input_path = self.dir / f"{idx}" / "model_input"
-        output_path = self.dir / f"{idx}" /  "model_output"
+        input_path = list(self.dir.glob('*'))[idx] / "model_input"
+        output_path = list(self.dir.glob('*'))[idx] /  "model_output"
         
         dem = grid_from_asc(input_path/"dem_8.asc").grid
         lulc = grid_from_asc(input_path/"lulc_8.asc").grid
