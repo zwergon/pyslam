@@ -53,7 +53,7 @@ class CalcLigne:
                     else:
                         dico_params[arg] = ligne_val_params[k]
 
-                crop.compute(dico_params["xgauche"], dico_params["xdroite"], dico_params["yhaut"], dico_params["ybas"])
+                crop.compute(dico_params["xgauche"], dico_params["xdroite"], dico_params["yhaut"], dico_params["ybas"], dico_params["flip_counterclockwise"])
                 dem_crop = crop.cropped[0]
 
                 lulc_crop = indexed_from_grid(crop.cropped[1], path/'data'/'htmu.csv')
