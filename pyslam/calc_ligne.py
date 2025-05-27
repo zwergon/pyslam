@@ -7,7 +7,7 @@ from pyslam.io.asc import indexed_from_grid, grid_to_asc
 from pysheds.grid import Grid
 from pyslam.asc_grid import AscGrid
 from pyslam.asc_indexed import AscIndexed
-from pyslam.traitement import ajout_cercle
+from pyslam.traitement import ajout_cercle, ajout_bruit
 
 class CalcLigne:
     def __init__(self, path_feuille_exp: str|Path, dem: AscGrid, lulc: AscIndexed, rain: AscGrid, rain_ant: AscGrid, soil: AscIndexed):
@@ -50,10 +50,13 @@ class CalcLigne:
                         dico_params[arg] = int(ligne_val_params[k])
                     elif ligne_type_params[k] == "float":
                         dico_params[arg] = float(ligne_val_params[k])
+                    elif ligne_type_params[k] == "bool":
+                        dico_params[arg] = bool(ligne_val_params[k]) # Pour qu'il y ait un False il faut que la case de la feuille soit vide car bool("False") = True et bool("") = False
                     else:
                         dico_params[arg] = ligne_val_params[k]
 
-                crop.compute(dico_params["xgauche"], dico_params["xdroite"], dico_params["yhaut"], dico_params["ybas"], dico_params["flip_counterclockwise"])
+                crop.compute(xgauche=dico_params["xgauche"], xdroite=dico_params["xdroite"], yhaut=dico_params["yhaut"],
+                              ybas=dico_params["ybas"], flip_counterclockwise=dico_params["flip_counterclockwise"])
                 dem_crop = crop.cropped[0]
 
                 lulc_crop = indexed_from_grid(crop.cropped[1], path/'data'/'htmu.csv')
@@ -62,11 +65,17 @@ class CalcLigne:
                 soil_crop = indexed_from_grid(crop.cropped[4], path/'data'/'soil.csv')
 
                 if dico_params["grid"] == "rain":
-                    rain_crop.grid = ajout_cercle(rain_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"])
+                    rain_crop.grid = ajout_cercle(rain_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"], cst=dico_params["cst"])
+                    rain_crop.grid = ajout_bruit(rain_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], 
+                                                 moyenne = dico_params["moyenne"], ecart_type=dico_params["ecart_type"])
                 if dico_params["grid"] == "rain_ant":
-                    rain_ant_crop.grid = ajout_cercle(rain_ant_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"])
+                    rain_ant_crop.grid = ajout_cercle(rain_ant_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"], cst=dico_params["cst"])
+                    rain_ant_crop.grid = ajout_bruit(rain_ant_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], 
+                                                 moyenne = dico_params["moyenne"], ecart_type=dico_params["ecart_type"])
                 if dico_params["grid"] == "rain":
-                    dem_crop.grid = ajout_cercle(dem_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"])
+                    dem_crop.grid = ajout_cercle(dem_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"], cst=dico_params["cst"])
+                    dem_crop.grid = ajout_bruit(dem_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], 
+                                                 moyenne = dico_params["moyenne"], ecart_type=dico_params["ecart_type"])
                 #! On modifie ici les grilles de pluie ou le dem plutôt que plus bas pour que les modifs soient prises en compte quand on exporte les fichiers, voir commentaire plus bas.
 
                 path_i = path_out/ f"{dico_params["numéro"]}"

@@ -45,7 +45,7 @@ class Slam:
         self.C = self.Cs*coef_cohesion
         self.C_std = self.Cs_std*coef_cohesion
 
-        mask = np.where((self.sin_slope_angles!=0) & (self.C!=0) & (self.rhos!=0) & (self.tan_phi!=0) & (self.aire!=0) & (self.Ks!=0) & (self.n!=0))
+        mask = np.where((self.sin_slope_angles>0) & (self.C>0) & (self.rhos>0) & (self.tan_phi>0) & (self.aire>0) & (self.Ks>0) & (self.n>0))
 
         wetness = np.full_like(self.aire, 0.0)
         wetness[mask] = self.qe[mask]/(self.n[mask]*self.z[mask]) + self.qa[mask]/(self.z[mask]*10**(-7)*3)
