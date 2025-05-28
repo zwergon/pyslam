@@ -72,11 +72,7 @@ class CalcLigne:
                     rain_ant_crop.grid = ajout_cercle(rain_ant_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"], cst=dico_params["cst"])
                     rain_ant_crop.grid = ajout_bruit(rain_ant_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], 
                                                  moyenne = dico_params["moyenne"], ecart_type=dico_params["ecart_type"])
-                if dico_params["grid"] == "rain":
-                    dem_crop.grid = ajout_cercle(dem_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], coef=dico_params["coef"], cst=dico_params["cst"])
-                    dem_crop.grid = ajout_bruit(dem_crop.grid, ligne=dico_params["ligne"], colonne=dico_params["colonne"], r=dico_params["r"], 
-                                                 moyenne = dico_params["moyenne"], ecart_type=dico_params["ecart_type"])
-                #! On modifie ici les grilles de pluie ou le dem plutôt que plus bas pour que les modifs soient prises en compte quand on exporte les fichiers, voir commentaire plus bas.
+                #! On modifie ici les grilles de pluie plutôt que plus bas pour que les modifs soient prises en compte quand on exporte les fichiers, voir commentaire plus bas.
 
                 path_i = path_out/ f"{dico_params["numéro"]}"
                 path_i.mkdir()

@@ -7,6 +7,7 @@ from pyslam.traitement import ajout_cercle, moyenne_mobile_2D
 from pyslam.asc_grid import AscGrid
 from pyslam.asc_indexed import AscIndexed
 
+
 class Slam:
 
     def __init__(self, aire: AscGrid, slope_angles: AscGrid, soil: AscIndexed, lulc: AscIndexed, rain:AscGrid, rain_ant: AscGrid):
@@ -50,7 +51,7 @@ class Slam:
         wetness = np.full_like(self.aire, 0.0)
         wetness[mask] = self.qe[mask]/(self.n[mask]*self.z[mask]) + self.qa[mask]/(self.z[mask]*10**(-7)*3)
         wetness_min = np.where(wetness < 1, wetness, 1)
-        
+
         FS_C1 = np.full_like(self.C, 0.0)
         FS_C2 = np.full_like(self.C, 0.0)
 

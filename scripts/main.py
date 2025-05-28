@@ -11,8 +11,10 @@ if __name__ == "__main__":
     rain = grid_from_asc(path/'data'/'rain_8.asc')
     rain_ant = grid_from_asc(path/'data'/'rain_ant_8.asc')
     soil = indexed_from_asc(path/'data'/'soil_8.asc', path/'data'/'soil.csv')
-    path_feuille_exp = "D:/repositories/pyslam/data/feuille_exp.csv"
+    path_feuille_exp = "D:/repositories/pyslam/data/feuille_exp_test.csv"
     calc_ligne = CalcLigne(path_feuille_exp=path_feuille_exp, dem=dem, lulc=lulc, rain=rain, rain_ant=rain_ant, soil=soil)
-    numéro = [i for i in range(9)]
+    with open(path_feuille_exp) as f:
+        row_count = sum(1 for row in f) - 2 #on enlève les deux premières lignes qui correspondent aux noms et types des données.
+    numéro = [i for i in range(row_count)]
     for num in numéro:
         calc_ligne.calc_ligne(num)
