@@ -4,7 +4,7 @@ from pyslam.crop import Crop
 from pyslam.io.asc import grid_from_asc
 import numpy as np
 
-path = Path("D:/repositories/pyslam/data/feuille_exp_test.csv")
+path = Path("D:/repositories/pyslam/data/feuille_exp.csv")
 liste_noms = ['numéro', 'xgauche', 'xdroite', 'yhaut', 'ybas', 'grid', 'ligne', 'colonne', 'r', 'coef', 'flip_counterclockwise', 'cst', 'moyenne', 'ecart_type']
 liste_types = ['int', 'int', 'int', 'int', 'int', 'str', 'int', 'int', 'int', 'float', 'int', 'bool', 'float', 'float']
 
