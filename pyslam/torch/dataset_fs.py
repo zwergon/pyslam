@@ -23,7 +23,7 @@ class DatasetFS(Dataset):
         rain = grid_from_asc(input_path/"rain_8.asc").grid
         soil = grid_from_asc(input_path/"soil_8.asc").grid
 
-        stacked = np.stack([dem, lulc, soil, rain_ant, rain], axis=-1)
+        stacked = np.stack([dem, lulc, soil, rain_ant, rain], axis=0)
         inputs = torch.from_numpy(stacked)
 
         proba = grid_from_asc(output_path/"PoF_levels.asc").grid
