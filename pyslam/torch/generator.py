@@ -6,7 +6,7 @@ class EncoderBlock(nn.Module):
     def __init__(self, in_channels, out_channels, batchnorm=True):
         super().__init__()
         layers = [
-            nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=4, stride=2, padding='same', bias=not batchnorm)
+            nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=4, stride=2, padding=1, bias=not batchnorm)
         ]
         if batchnorm:
             layers.append(nn.BatchNorm2d(out_channels))
@@ -20,7 +20,7 @@ class DecoderBlock(nn.Module):
     def __init__(self, in_channels, out_channels, dropout=True):
         super().__init__()
         layers = [
-            nn.ConvTranspose2d(in_channels=in_channels, out_channels=out_channels, kernel_size=4, stride=2, padding='same', bias=False),
+            nn.ConvTranspose2d(in_channels=in_channels, out_channels=out_channels, kernel_size=4, stride=2, padding=1, bias=False),
             nn.BatchNorm2d(out_channels)
         ]
         if dropout:
@@ -46,7 +46,7 @@ class Generator(nn.Module):
         self.e6 = EncoderBlock(in_channels=512, out_channels=512)
         self.e7 = EncoderBlock(in_channels=512, out_channels=512)
 
-        self.bottleneck_conv = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=4, stride=2, padding='same')
+        self.bottleneck_conv = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=4, stride=2, padding=1)
         self.bottleneck_relu = nn.ReLU(inplace=True)
 
         self.d1 = DecoderBlock(in_channels=512, out_channels=512)
@@ -56,7 +56,7 @@ class Generator(nn.Module):
         self.d5 = DecoderBlock(in_channels=1024, out_channels=256, dropout=False)
         self.d6 = DecoderBlock(in_channels=512, out_channels=128, dropout=False)
         self.d7 = DecoderBlock(in_channels=256, out_channels=64, dropout=False)
-        self.final_conv = nn.ConvTranspose2d(in_channels=128, out_channels=out_channels, kernel_size=4, stride=2, padding='same')
+        self.final_conv = nn.ConvTranspose2d(in_channels=128, out_channels=out_channels, kernel_size=4, stride=2, padding=1)
         self.tanh = nn.Tanh()
     
     def forward(self, input):

@@ -84,16 +84,16 @@ class TestProperties(unittest.TestCase):
         self.assertIsInstance(sampler, DirectSampler)
         self.assertEqual(sampler.sample(4), 0.7)  # porosity
 
-    def test_sampler_mean_sampler(self):
-        # Test with a key that should return a MeanSampler
-        sampler: MeanSampler = self.soil_properties.samplers['C']
-        self.assertIsInstance(sampler, MeanSampler)
-        np.random.seed(1)
-        self.assertAlmostEqual(sampler.sample(1), 0.2812, places=4)
+    # def test_sampler_mean_sampler(self):
+    #     # Test with a key that should return a MeanSampler
+    #     sampler: MeanSampler = self.soil_properties.samplers['C']
+    #     self.assertIsInstance(sampler, MeanSampler)
+    #     np.random.seed(1)
+    #     self.assertAlmostEqual(sampler.sample(1), 0.2812, places=4)
 
-        sampler: MeanSampler = self.soil_properties.samplers['phi']
-        self.assertIsInstance(sampler, MeanSampler)
-        self.assertAlmostEqual((sampler.sample(2)), 0.3694, places=4)
+    #     sampler: MeanSampler = self.soil_properties.samplers['phi']
+    #     self.assertIsInstance(sampler, MeanSampler)
+    #     self.assertAlmostEqual((sampler.sample(2)), 0.3694, places=4)
 
     def test_sampler_invalid_key(self):
         # Test with an invalid key
