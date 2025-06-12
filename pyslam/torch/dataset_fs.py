@@ -8,7 +8,7 @@ class DatasetFS(Dataset):
     def __init__(self, directory : Path, transform=None, target_transform=None):
         self.dir = directory
         self.transform = transform
-        self.traget_transform = target_transform
+        self.target_transform = target_transform
 
     def __len__(self):
         return len(list(self.dir.glob('*')))
@@ -31,6 +31,6 @@ class DatasetFS(Dataset):
 
         if self.transform:
             inputs = self.transform(inputs)
-        if self.traget_transform:
+        if self.target_transform:
             output = self.target_transform(output)
         return(inputs, output)
