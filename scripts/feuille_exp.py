@@ -4,14 +4,15 @@ from pyslam.crop import Crop
 from pyslam.io.asc import grid_from_asc
 import numpy as np
 
-path = Path("D:/repositories/pyslam/data/feuille_exp.csv")
+path = Path(__file__).parent.parent/"data"
+path_csv = path/"feuille_exp.csv"
 liste_noms = ['numéro', 'xgauche', 'xdroite', 'yhaut', 'ybas', 'grid', 'ligne', 'colonne', 'r', 'coef', 'flip_counterclockwise', 'cst', 'moyenne', 'ecart_type']
 liste_types = ['int', 'int', 'int', 'int', 'int', 'str', 'int', 'int', 'int', 'float', 'int', 'bool', 'float', 'float']
 
-path_dem = Path("D:/repositories/pyslam/data/dem_8.asc")
+path_dem = path/"dem_8.asc"
 dem = grid_from_asc(path_dem)
 cropper = Crop([dem])
-createur = CreationFeuilleExperience(liste_noms_colonnes_csv=liste_noms, liste_types_colonnes_csv=liste_types, path_csv=path)
+createur = CreationFeuilleExperience(liste_noms_colonnes_csv=liste_noms, liste_types_colonnes_csv=liste_types, path_csv=path_csv)
 total_it = 0
 for i in range(15):
     xgauche = 256*i
