@@ -14,10 +14,10 @@ class Discriminator(nn.Module):
             nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=4, padding=1),
-            nn.BatchNorm2d(256),
+            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=4, padding=1),
+            nn.BatchNorm2d(512),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(in_channels=256, out_channels=1, kernel_size=4, padding=1),
+            nn.Conv2d(in_channels=512, out_channels=1, kernel_size=4, padding=1),
             nn.Sigmoid()
         )
     
