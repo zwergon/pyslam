@@ -1,6 +1,7 @@
 from pathlib import Path
 from pyslam.io.asc import grid_from_asc, indexed_from_asc
 from pyslam.calc_ligne import CalcLigne
+from tqdm import tqdm
 
 if __name__ == "__main__":
     path = Path(__file__).parent.parent
@@ -16,5 +17,5 @@ if __name__ == "__main__":
     with open(path_feuille_exp) as f:
         row_count = sum(1 for row in f) - 2 #on enlève les deux premières lignes qui correspondent aux noms et types des données.
     numéro = [i for i in range(row_count)]
-    for num in numéro:
+    for num in tqdm(numéro):
         calc_ligne.calc_ligne(num)

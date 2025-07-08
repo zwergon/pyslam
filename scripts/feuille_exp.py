@@ -3,6 +3,7 @@ from pathlib import Path
 from pyslam.crop import Crop
 from pyslam.io.asc import grid_from_asc
 import numpy as np
+from tqdm import tqdm
 
 path = Path(__file__).parent.parent/"data"
 path_csv = path/"feuille_exp.csv"
@@ -28,7 +29,7 @@ for i in range(15):
         createur.ajout_ligne([total_it, xgauche, xdroite, yhaut, ybas, 'rain', 0, 0, 0, 0, 0, 'True', 0, 1])
         total_it += 1
 
-for i in range(2000):
+for i in tqdm(range(22000)):
     xgauche = np.random.randint(0, 14*256 + 1) #la borne supérieure du randint est exclusive
     xdroite = xgauche + 255
     yhaut = np.random.randint(0, 14*256 + 1)
