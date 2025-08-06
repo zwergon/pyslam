@@ -1,7 +1,7 @@
 venv
-data
 **/__pycache__
 *.egg-info
 .vscode
 output/
 e.py
+preprocessing/data/litology_italy.gpkg
