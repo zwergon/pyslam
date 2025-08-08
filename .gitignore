@@ -4,4 +4,4 @@ venv
 .vscode
 output/
 e.py
-preprocessing/data/litology_italy.gpkg
+data/litology_italy.gpkg
